@@ -100,3 +100,7 @@ Set `PORT` in `.env` to change the default port (3000).
 ## Deep Dive
 
 See [docs/DEEP_DIVE.md](docs/DEEP_DIVE.md) for architecture, security, and agent flow details.
+
+## Author
+
+**Musab Mubaraq Mburaimoh (KingMusab)** — [Superteam Profile](https://superteam.fun/earn/t/kingmusab)
