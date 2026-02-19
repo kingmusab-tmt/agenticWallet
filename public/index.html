@@ -1,0 +1,1841 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agentic Wallet Dashboard</title>
+    <style>
+      :root {
+        --bg: #0f1117;
+        --surface: #1a1d27;
+        --surface2: #252836;
+        --border: #2e3247;
+        --accent: #14f195;
+        --accent-dim: rgba(20, 241, 149, 0.12);
+        --purple: #9945ff;
+        --purple-dim: rgba(153, 69, 255, 0.12);
+        --red: #f43f5e;
+        --red-dim: rgba(244, 63, 94, 0.12);
+        --yellow: #fbbf24;
+        --text: #e2e8f0;
+        --text-dim: #94a3b8;
+        --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+        --mono: "Cascadia Code", "Fira Code", "Consolas", monospace;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--font);
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+      }
+
+      /* ── Header ─────────────────────────────────────── */
+      header {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, var(--accent), var(--purple));
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+
+      .header-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--text-dim);
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+
+      .status-dot.error {
+        background: var(--red);
+      }
+
+      /* ── Layout ──────────────────────────────────────── */
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      /* ── Stats Bar ───────────────────────────────────── */
+      .stats-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-dim);
+        margin-bottom: 6px;
+      }
+
+      .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        font-family: var(--mono);
+      }
+
+      .stat-value.accent {
+        color: var(--accent);
+      }
+      .stat-value.purple {
+        color: var(--purple);
+      }
+
+      /* ── Toolbar ──────────────────────────────────────── */
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+
+      .toolbar h2 {
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .toolbar-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      /* ── Buttons ──────────────────────────────────────── */
+      button {
+        font-family: var(--font);
+        font-size: 13px;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: #0f1117;
+      }
+      .btn-primary:hover {
+        opacity: 0.85;
+      }
+
+      .btn-secondary {
+        background: var(--surface2);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      .btn-secondary:hover {
+        background: var(--border);
+      }
+
+      .btn-danger {
+        background: var(--red-dim);
+        color: var(--red);
+      }
+      .btn-danger:hover {
+        background: var(--red);
+        color: #fff;
+      }
+
+      .btn-small {
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+
+      button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      /* ── Agent Table ─────────────────────────────────── */
+      .agent-table-wrapper {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      thead th {
+        text-align: left;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-dim);
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface2);
+      }
+
+      tbody td {
+        padding: 14px 16px;
+        font-size: 14px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .address {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text-dim);
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .balance-cell {
+        font-family: var(--mono);
+        font-weight: 600;
+        color: var(--accent);
+      }
+
+      .strategy-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .strategy-badge.simple {
+        background: var(--accent-dim);
+        color: var(--accent);
+      }
+      .strategy-badge.trading {
+        background: var(--purple-dim);
+        color: var(--purple);
+      }
+      .strategy-badge.liquidity {
+        background: rgba(251, 191, 36, 0.12);
+        color: var(--yellow);
+      }
+
+      .spending-bar {
+        width: 80px;
+        height: 6px;
+        background: var(--surface2);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 4px;
+      }
+
+      .spending-fill {
+        height: 100%;
+        border-radius: 3px;
+        background: var(--accent);
+        transition: width 0.3s;
+      }
+
+      .spending-fill.warn {
+        background: var(--yellow);
+      }
+      .spending-fill.danger {
+        background: var(--red);
+      }
+
+      .actions-cell {
+        display: flex;
+        gap: 6px;
+      }
+
+      /* ── Agent Detail Panel ──────────────────────────── */
+      .detail-panel {
+        display: none;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        margin-top: 16px;
+      }
+
+      .detail-panel.open {
+        display: block;
+      }
+
+      .detail-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      .detail-header h3 {
+        font-size: 16px;
+      }
+
+      .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .detail-field label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-dim);
+        margin-bottom: 4px;
+      }
+
+      .detail-field span {
+        font-family: var(--mono);
+        font-size: 14px;
+      }
+
+      .spl-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+      }
+
+      .spl-table th {
+        text-align: left;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-dim);
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .spl-table td {
+        padding: 8px 12px;
+        font-size: 13px;
+        font-family: var(--mono);
+        border-bottom: 1px solid var(--border);
+      }
+
+      /* ── Modal ────────────────────────────────────────── */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-overlay.open {
+        display: flex;
+      }
+
+      .modal {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 28px;
+        width: 400px;
+        max-width: 90vw;
+      }
+
+      .modal h3 {
+        margin-bottom: 20px;
+        font-size: 16px;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 12px;
+        color: var(--text-dim);
+        margin-bottom: 6px;
+      }
+
+      .form-group select,
+      .form-group input {
+        width: 100%;
+        padding: 10px 12px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 14px;
+      }
+
+      .form-group select:focus,
+      .form-group input:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 20px;
+      }
+
+      /* ── Toast ────────────────────────────────────────── */
+      .toast-container {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 200;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .toast {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 13px;
+        animation: slideIn 0.2s ease;
+        max-width: 360px;
+      }
+
+      .toast.success {
+        border-left: 3px solid var(--accent);
+      }
+      .toast.error {
+        border-left: 3px solid var(--red);
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      /* ── Empty State ──────────────────────────────────── */
+      .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+        color: var(--text-dim);
+      }
+
+      .empty-state p {
+        margin-top: 8px;
+        font-size: 14px;
+      }
+
+      /* ── Loading ──────────────────────────────────────── */
+      .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        display: inline-block;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="logo">
+        <div class="logo-icon">⚡</div>
+        Agentic Wallet
+      </div>
+      <div class="header-status">
+        <div class="status-dot" id="rpcDot"></div>
+        <span id="rpcStatus">Connecting...</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-label">Total Agents</div>
+          <div class="stat-value accent" id="statAgents">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total SOL Balance</div>
+          <div class="stat-value accent" id="statBalance">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Network</div>
+          <div class="stat-value purple" id="statNetwork">Devnet</div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <h2>Agents</h2>
+        <div class="toolbar-actions">
+          <button class="btn-secondary" onclick="refreshAgents()">
+            ⟳ Refresh
+          </button>
+          <button class="btn-primary" onclick="openSpawnModal()">
+            + Spawn Agent
+          </button>
+        </div>
+      </div>
+
+      <!-- Agent Table -->
+      <div class="agent-table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Wallet</th>
+              <th>Strategy</th>
+              <th>SOL Balance</th>
+              <th>Spending</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="agentTableBody">
+            <tr>
+              <td colspan="7">
+                <div class="empty-state">
+                  <div class="spinner"></div>
+                  <p>Loading agents...</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Wallets Section -->
+      <div class="toolbar" style="margin-top: 32px">
+        <h2>Wallets</h2>
+        <div class="toolbar-actions">
+          <button class="btn-secondary" onclick="refreshWallets()">
+            ⟳ Refresh
+          </button>
+          <button class="btn-primary" onclick="openCreateWalletModal()">
+            + Create Wallet
+          </button>
+        </div>
+      </div>
+
+      <!-- Token Operations Bar -->
+      <div style="display: flex; gap: 8px; margin-bottom: 16px">
+        <button class="btn-secondary" onclick="openCreateMintModal()">
+          🪙 Create Mint
+        </button>
+        <button class="btn-secondary" onclick="openMintTokensModal()">
+          ⛏ Mint Tokens
+        </button>
+        <button class="btn-secondary" onclick="openTransferTokensModal()">
+          ↗ Transfer Tokens
+        </button>
+      </div>
+
+      <div class="agent-table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Address</th>
+              <th>SOL Balance</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="walletTableBody">
+            <tr>
+              <td colspan="4">
+                <div class="empty-state">
+                  <div class="spinner"></div>
+                  <p>Loading wallets...</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Wallet Detail Panel -->
+      <div class="detail-panel" id="walletDetailPanel">
+        <div class="detail-header">
+          <h3 id="walletDetailTitle">Wallet Details</h3>
+          <button class="btn-secondary btn-small" onclick="closeWalletDetail()">
+            ✕ Close
+          </button>
+        </div>
+        <div class="detail-grid" id="walletDetailGrid"></div>
+        <div id="walletDetailSpl"></div>
+      </div>
+
+      <!-- Detail Panel -->
+      <div class="detail-panel" id="detailPanel">
+        <div class="detail-header">
+          <h3 id="detailTitle">Agent Details</h3>
+          <button class="btn-secondary btn-small" onclick="closeDetail()">
+            ✕ Close
+          </button>
+        </div>
+        <div class="detail-grid" id="detailGrid"></div>
+        <div id="detailSpl"></div>
+      </div>
+    </main>
+
+    <!-- Spawn Modal -->
+    <div class="modal-overlay" id="spawnModal">
+      <div class="modal">
+        <h3>Spawn New Agent</h3>
+        <div class="form-group">
+          <label>Strategy</label>
+          <select id="spawnStrategy">
+            <option value="simple">Simple (SOL Transfers)</option>
+            <option value="trading">Trading (Price-Based)</option>
+            <option value="liquidity">Liquidity (Rebalancing)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Wallet Name (optional)</label>
+          <input
+            type="text"
+            id="spawnName"
+            placeholder="auto-generated if empty"
+          />
+        </div>
+        <div class="form-group">
+          <label>Spending Limit (SOL)</label>
+          <input type="number" id="spawnLimit" value="1" step="0.1" min="0.1" />
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeSpawnModal()">
+            Cancel
+          </button>
+          <button class="btn-primary" id="spawnBtn" onclick="spawnAgent()">
+            Spawn
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fund Modal -->
+    <div class="modal-overlay" id="fundModal">
+      <div class="modal">
+        <h3>Fund Agent</h3>
+        <p
+          style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px"
+          id="fundInfo"
+        ></p>
+        <div class="form-group">
+          <label>SOL Amount</label>
+          <input
+            type="number"
+            id="fundAmount"
+            value="1"
+            step="0.1"
+            min="0.1"
+            max="5"
+          />
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeFundModal()">
+            Cancel
+          </button>
+          <button class="btn-primary" id="fundBtn" onclick="fundAgent()">
+            Airdrop
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Create Wallet Modal -->
+    <div class="modal-overlay" id="createWalletModal">
+      <div class="modal">
+        <h3>Create Wallet</h3>
+        <div class="form-group">
+          <label>Wallet Name</label>
+          <input
+            type="text"
+            id="createWalletName"
+            placeholder="e.g. my-wallet"
+          />
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeCreateWalletModal()">
+            Cancel
+          </button>
+          <button
+            class="btn-primary"
+            id="createWalletBtn"
+            onclick="createWallet()"
+          >
+            Create
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wallet Airdrop Modal -->
+    <div class="modal-overlay" id="walletAirdropModal">
+      <div class="modal">
+        <h3>Airdrop to Wallet</h3>
+        <p
+          style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px"
+          id="walletAirdropInfo"
+        ></p>
+        <div class="form-group">
+          <label>SOL Amount</label>
+          <input
+            type="number"
+            id="walletAirdropAmount"
+            value="1"
+            step="0.1"
+            min="0.1"
+            max="5"
+          />
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeWalletAirdropModal()">
+            Cancel
+          </button>
+          <button
+            class="btn-primary"
+            id="walletAirdropBtn"
+            onclick="walletAirdrop()"
+          >
+            Airdrop
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Run Agent Modal -->
+    <div class="modal-overlay" id="runAgentModal">
+      <div class="modal">
+        <h3>Run Simple Agent</h3>
+        <p
+          style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px"
+          id="runAgentInfo"
+        ></p>
+        <div class="form-group">
+          <label
+            >Destination Public Key
+            <span style="font-size: 11px; color: var(--text-dim)"
+              >(optional — random if blank)</span
+            ></label
+          >
+          <input
+            type="text"
+            id="runTo"
+            placeholder="Leave blank for random devnet address"
+          />
+        </div>
+        <div class="form-group">
+          <label>SOL per Transfer</label>
+          <input
+            type="number"
+            id="runSol"
+            value="0.01"
+            step="0.001"
+            min="0.001"
+          />
+        </div>
+        <div class="form-group">
+          <label>Iterations</label>
+          <input type="number" id="runIterations" value="5" min="1" max="100" />
+        </div>
+        <div class="form-group">
+          <label>Interval (ms)</label>
+          <input
+            type="number"
+            id="runInterval"
+            value="3000"
+            min="500"
+            step="500"
+          />
+        </div>
+        <div class="form-group">
+          <label>Hold Probability (0-1)</label>
+          <input
+            type="number"
+            id="runHold"
+            value="0.6"
+            step="0.1"
+            min="0"
+            max="1"
+          />
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeRunAgentModal()">
+            Cancel
+          </button>
+          <button class="btn-primary" id="runAgentBtn" onclick="runAgent()">
+            Run
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trade Agent Modal -->
+    <div class="modal-overlay" id="tradeAgentModal">
+      <div class="modal">
+        <h3>Run Trading Strategy</h3>
+        <p
+          style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px"
+          id="tradeAgentInfo"
+        ></p>
+        <div class="form-group">
+          <label>Target Mint Address</label>
+          <input type="text" id="tradeMint" placeholder="Base58 mint address" />
+        </div>
+        <div class="form-group">
+          <label>Buy Threshold</label>
+          <input type="number" id="tradeBuy" value="0.95" step="0.01" />
+        </div>
+        <div class="form-group">
+          <label>Sell Threshold</label>
+          <input type="number" id="tradeSell" value="1.05" step="0.01" />
+        </div>
+        <div class="form-group">
+          <label>Trade Amount</label>
+          <input
+            type="number"
+            id="tradeAmount"
+            value="1"
+            step="0.1"
+            min="0.1"
+          />
+        </div>
+        <div class="form-group">
+          <label>Iterations</label>
+          <input
+            type="number"
+            id="tradeIterations"
+            value="5"
+            min="1"
+            max="100"
+          />
+        </div>
+        <div class="form-group">
+          <label>Interval (ms)</label>
+          <input
+            type="number"
+            id="tradeInterval"
+            value="3000"
+            min="500"
+            step="500"
+          />
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeTradeAgentModal()">
+            Cancel
+          </button>
+          <button class="btn-primary" id="tradeAgentBtn" onclick="tradeAgent()">
+            Run Trading
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liquidity Agent Modal -->
+    <div class="modal-overlay" id="liquidityAgentModal">
+      <div class="modal">
+        <h3>Run Liquidity Strategy</h3>
+        <p
+          style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px"
+          id="liquidityAgentInfo"
+        ></p>
+        <div class="form-group">
+          <label>Pool Mint Address</label>
+          <input
+            type="text"
+            id="liquidityMint"
+            placeholder="Base58 mint address"
+          />
+        </div>
+        <div class="form-group">
+          <label>Min Balance</label>
+          <input type="number" id="liquidityMin" value="10" step="1" min="0" />
+        </div>
+        <div class="form-group">
+          <label>Max Balance</label>
+          <input type="number" id="liquidityMax" value="100" step="1" min="1" />
+        </div>
+        <div class="form-group">
+          <label>Rebalance Amount</label>
+          <input
+            type="number"
+            id="liquidityAmount"
+            value="5"
+            step="0.1"
+            min="0.1"
+          />
+        </div>
+        <div class="form-group">
+          <label>Iterations</label>
+          <input
+            type="number"
+            id="liquidityIterations"
+            value="5"
+            min="1"
+            max="100"
+          />
+        </div>
+        <div class="form-group">
+          <label>Interval (ms)</label>
+          <input
+            type="number"
+            id="liquidityInterval"
+            value="3000"
+            min="500"
+            step="500"
+          />
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeLiquidityAgentModal()">
+            Cancel
+          </button>
+          <button
+            class="btn-primary"
+            id="liquidityAgentBtn"
+            onclick="liquidityAgent()"
+          >
+            Run Liquidity
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Mint Modal -->
+    <div class="modal-overlay" id="createMintModal">
+      <div class="modal">
+        <h3>Create SPL Token Mint</h3>
+        <div class="form-group">
+          <label>Wallet Name (mint authority)</label>
+          <select id="mintWalletSelect"></select>
+        </div>
+        <div class="form-group">
+          <label>Decimals</label>
+          <input type="number" id="mintDecimals" value="6" min="0" max="9" />
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeCreateMintModal()">
+            Cancel
+          </button>
+          <button class="btn-primary" id="createMintBtn" onclick="createMint()">
+            Create Mint
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mint Tokens Modal -->
+    <div class="modal-overlay" id="mintTokensModal">
+      <div class="modal">
+        <h3>Mint SPL Tokens</h3>
+        <div class="form-group">
+          <label>Wallet Name (mint authority)</label>
+          <select id="mintTokensWalletSelect"></select>
+        </div>
+        <div class="form-group">
+          <label>Mint Address</label>
+          <input
+            type="text"
+            id="mintTokensMint"
+            placeholder="Base58 mint address"
+          />
+        </div>
+        <div class="form-group">
+          <label>Amount</label>
+          <input
+            type="number"
+            id="mintTokensAmount"
+            value="10"
+            step="0.1"
+            min="0.1"
+          />
+        </div>
+        <div class="form-group">
+          <label>Decimals</label>
+          <input
+            type="number"
+            id="mintTokensDecimals"
+            value="6"
+            min="0"
+            max="9"
+          />
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeMintTokensModal()">
+            Cancel
+          </button>
+          <button class="btn-primary" id="mintTokensBtn" onclick="mintTokens()">
+            Mint
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transfer Tokens Modal -->
+    <div class="modal-overlay" id="transferTokensModal">
+      <div class="modal">
+        <h3>Transfer SPL Tokens</h3>
+        <div class="form-group">
+          <label>From Wallet</label>
+          <select id="transferFromSelect"></select>
+        </div>
+        <div class="form-group">
+          <label>To (Public Key)</label>
+          <input type="text" id="transferTo" placeholder="Base58 public key" />
+        </div>
+        <div class="form-group">
+          <label>Mint Address</label>
+          <input
+            type="text"
+            id="transferMint"
+            placeholder="Base58 mint address"
+          />
+        </div>
+        <div class="form-group">
+          <label>Amount</label>
+          <input
+            type="number"
+            id="transferAmount"
+            value="1"
+            step="0.1"
+            min="0.1"
+          />
+        </div>
+        <div class="form-group">
+          <label>Decimals</label>
+          <input
+            type="number"
+            id="transferDecimals"
+            value="6"
+            min="0"
+            max="9"
+          />
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeTransferTokensModal()">
+            Cancel
+          </button>
+          <button
+            class="btn-primary"
+            id="transferTokensBtn"
+            onclick="transferTokens()"
+          >
+            Transfer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ── State ────────────────────────────────────────────────
+      let agents = [];
+      let wallets = [];
+      let selectedAgentId = null;
+      let fundingAgentId = null;
+
+      // ── Toast notifications ─────────────────────────────────
+      function toast(message, type = "success") {
+        const container = document.getElementById("toastContainer");
+        const el = document.createElement("div");
+        el.className = `toast ${type}`;
+        el.textContent = message;
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 4000);
+      }
+
+      // ── API helpers ─────────────────────────────────────────
+      async function api(path, options) {
+        const res = await fetch(`/api${path}`, {
+          headers: { "Content-Type": "application/json" },
+          ...options,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        return data;
+      }
+
+      // ── Health check ────────────────────────────────────────
+      async function checkHealth() {
+        try {
+          const h = await api("/health");
+          const dot = document.getElementById("rpcDot");
+          const txt = document.getElementById("rpcStatus");
+          if (h.status === "ok") {
+            dot.className = "status-dot";
+            txt.textContent = `Solana v${h.solana?.["solana-core"] ?? "?"}`;
+          } else {
+            dot.className = "status-dot error";
+            txt.textContent = "RPC Unavailable";
+          }
+        } catch {
+          document.getElementById("rpcDot").className = "status-dot error";
+          document.getElementById("rpcStatus").textContent = "Disconnected";
+        }
+      }
+
+      // ── Render agents ───────────────────────────────────────
+      function renderAgents() {
+        const tbody = document.getElementById("agentTableBody");
+
+        // Update stats
+        document.getElementById("statAgents").textContent = agents.length;
+        const totalSol = agents.reduce(
+          (sum, a) => sum + (a.balanceSol ?? 0),
+          0,
+        );
+        document.getElementById("statBalance").textContent =
+          totalSol.toFixed(4);
+
+        if (agents.length === 0) {
+          tbody.innerHTML = `
+          <tr><td colspan="7">
+            <div class="empty-state">
+              <p style="font-size:16px">No agents yet</p>
+              <p>Click <strong>+ Spawn Agent</strong> to create one</p>
+            </div>
+          </td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = agents
+          .map((a) => {
+            const shortId = a.id.slice(0, 8);
+            const shortAddr = a.walletAddress
+              ? a.walletAddress.slice(0, 4) + "..." + a.walletAddress.slice(-4)
+              : "-";
+            const bal = a.balanceSol != null ? a.balanceSol.toFixed(4) : "-";
+            const spent = a.solSpent ?? 0;
+            const limit = a.spendingLimit ?? 1;
+            const pct = Math.min((spent / limit) * 100, 100);
+            const fillClass = pct > 80 ? "danger" : pct > 50 ? "warn" : "";
+            const strategy = a.strategy ?? "simple";
+            const created = a.createdAt
+              ? new Date(a.createdAt).toLocaleDateString()
+              : "-";
+
+            return `<tr>
+          <td><span style="font-family:var(--mono);font-size:13px;cursor:pointer;color:var(--accent)"
+                onclick="viewAgent('${a.id}')">${shortId}…</span></td>
+          <td class="address" title="${a.walletAddress ?? ""}">${shortAddr}</td>
+          <td><span class="strategy-badge ${strategy}">${strategy}</span></td>
+          <td class="balance-cell">${bal}</td>
+          <td>
+            <span style="font-size:12px;color:var(--text-dim)">${spent.toFixed(2)} / ${limit.toFixed(1)}</span>
+            <div class="spending-bar"><div class="spending-fill ${fillClass}" style="width:${pct}%"></div></div>
+          </td>
+          <td style="font-size:13px;color:var(--text-dim)">${created}</td>
+          <td>
+            <div class="actions-cell" style="flex-wrap:wrap">
+              <button class="btn-secondary btn-small" onclick="openFundModal('${a.id}')">Fund</button>
+              ${a.running ? "" : `<button class="btn-secondary btn-small" onclick="openRunAgentModal('${a.id}')">Run</button>`}
+              ${a.running ? "" : `<button class="btn-secondary btn-small" onclick="openTradeAgentModal('${a.id}')">Trade</button>`}
+              ${a.running ? "" : `<button class="btn-secondary btn-small" onclick="openLiquidityAgentModal('${a.id}')">Liquidity</button>`}
+              <button class="btn-secondary btn-small" onclick="viewAgent('${a.id}')">Details</button>
+              ${a.running ? `<button class="btn-danger btn-small" onclick="stopAgent('${a.id}')">Stop</button>` : ""}
+            </div>
+          </td>
+        </tr>`;
+          })
+          .join("");
+      }
+
+      // ── Fetch agents ────────────────────────────────────────
+      async function refreshAgents() {
+        try {
+          agents = await api("/agents");
+          renderAgents();
+        } catch (err) {
+          toast(err.message, "error");
+        }
+      }
+
+      // ── View agent detail ───────────────────────────────────
+      async function viewAgent(id) {
+        try {
+          const a = await api(`/agents/${id}`);
+          selectedAgentId = id;
+
+          document.getElementById("detailTitle").textContent =
+            `Agent ${a.id.slice(0, 8)}…`;
+
+          const grid = document.getElementById("detailGrid");
+          grid.innerHTML = `
+          <div class="detail-field"><label>Agent ID</label><span>${a.id}</span></div>
+          <div class="detail-field"><label>Wallet Name</label><span>${a.walletName}</span></div>
+          <div class="detail-field"><label>Wallet Address</label><span style="font-size:12px">${a.walletAddress}</span></div>
+          <div class="detail-field"><label>Strategy</label><span>${a.strategy}</span></div>
+          <div class="detail-field"><label>SOL Balance</label><span style="color:var(--accent)">${a.balanceSol?.toFixed(6) ?? "-"} SOL</span></div>
+          <div class="detail-field"><label>SOL Spent</label><span>${(a.solSpent ?? 0).toFixed(4)} / ${(a.spendingLimit ?? 1).toFixed(1)}</span></div>
+          <div class="detail-field"><label>Created</label><span style="font-size:12px">${a.createdAt}</span></div>
+          <div class="detail-field"><label>Last Updated</label><span style="font-size:12px">${a.lastUpdated ?? "-"}</span></div>
+        `;
+
+          const splDiv = document.getElementById("detailSpl");
+          if (a.splBalances && a.splBalances.length > 0) {
+            splDiv.innerHTML = `
+            <h4 style="font-size:14px;margin-bottom:8px">SPL Token Balances</h4>
+            <table class="spl-table">
+              <thead><tr><th>Mint</th><th>Amount</th><th>Decimals</th></tr></thead>
+              <tbody>${a.splBalances
+                .map(
+                  (b) => `
+                <tr>
+                  <td style="font-size:11px">${b.mint.slice(0, 8)}…${b.mint.slice(-4)}</td>
+                  <td>${b.amount}</td>
+                  <td>${b.decimals}</td>
+                </tr>`,
+                )
+                .join("")}
+              </tbody>
+            </table>`;
+          } else {
+            splDiv.innerHTML = `<p style="font-size:13px;color:var(--text-dim)">No SPL tokens held</p>`;
+          }
+
+          document.getElementById("detailPanel").classList.add("open");
+        } catch (err) {
+          toast(err.message, "error");
+        }
+      }
+
+      function closeDetail() {
+        document.getElementById("detailPanel").classList.remove("open");
+        selectedAgentId = null;
+      }
+
+      // ── Spawn agent ─────────────────────────────────────────
+      function openSpawnModal() {
+        document.getElementById("spawnModal").classList.add("open");
+      }
+
+      function closeSpawnModal() {
+        document.getElementById("spawnModal").classList.remove("open");
+      }
+
+      async function spawnAgent() {
+        const btn = document.getElementById("spawnBtn");
+        btn.disabled = true;
+        btn.textContent = "Spawning...";
+        try {
+          const strategy = document.getElementById("spawnStrategy").value;
+          const name =
+            document.getElementById("spawnName").value.trim() || undefined;
+          const spendingLimit =
+            parseFloat(document.getElementById("spawnLimit").value) || 1;
+          const record = await api("/agents/spawn", {
+            method: "POST",
+            body: JSON.stringify({ strategy, name, spendingLimit }),
+          });
+          toast(`Agent ${record.id.slice(0, 8)}… spawned`);
+          closeSpawnModal();
+          document.getElementById("spawnName").value = "";
+          await refreshAgents();
+        } catch (err) {
+          toast(err.message, "error");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Spawn";
+        }
+      }
+
+      // ── Fund agent ──────────────────────────────────────────
+      function openFundModal(id) {
+        fundingAgentId = id;
+        const agent = agents.find((a) => a.id === id);
+        document.getElementById("fundInfo").textContent =
+          `Airdrop devnet SOL to agent ${id.slice(0, 8)}… (${agent?.walletAddress?.slice(0, 8) ?? ""}…)`;
+        document.getElementById("fundModal").classList.add("open");
+      }
+
+      function closeFundModal() {
+        document.getElementById("fundModal").classList.remove("open");
+        fundingAgentId = null;
+      }
+
+      async function fundAgent() {
+        if (!fundingAgentId) return;
+        const btn = document.getElementById("fundBtn");
+        btn.disabled = true;
+        btn.textContent = "Airdropping...";
+        try {
+          const sol =
+            parseFloat(document.getElementById("fundAmount").value) || 1;
+          await api(`/agents/${fundingAgentId}/fund`, {
+            method: "POST",
+            body: JSON.stringify({ sol }),
+          });
+          toast(`Airdropped ${sol} SOL`);
+          closeFundModal();
+          await refreshAgents();
+        } catch (err) {
+          toast(err.message, "error");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Airdrop";
+        }
+      }
+
+      // ── Stop agent ──────────────────────────────────────────
+      async function stopAgent(id) {
+        try {
+          await api(`/agents/${id}/stop`, { method: "POST" });
+          toast(`Agent ${id.slice(0, 8)}… stopped`);
+          await refreshAgents();
+        } catch (err) {
+          toast(err.message, "error");
+        }
+      }
+
+      // ── Wallets ─────────────────────────────────────────────
+      function renderWallets() {
+        const tbody = document.getElementById("walletTableBody");
+
+        if (wallets.length === 0) {
+          tbody.innerHTML = `
+            <tr><td colspan="4">
+              <div class="empty-state">
+                <p style="font-size:16px">No wallets found</p>
+                <p>Create one via CLI: <code style="color:var(--accent)">npm run cli -- wallet:create -- --name my-wallet</code></p>
+              </div>
+            </td></tr>`;
+          return;
+        }
+
+        const agentWalletNames = new Set(agents.map((a) => a.walletName));
+        tbody.innerHTML = wallets
+          .map((w) => {
+            const shortAddr = w.publicKey
+              ? w.publicKey.slice(0, 4) + "..." + w.publicKey.slice(-4)
+              : "-";
+            const bal = w.balanceSol != null ? w.balanceSol.toFixed(4) : "-";
+            const isAgent = agentWalletNames.has(w.name);
+            return `<tr>
+            <td style="font-family:var(--mono);font-size:13px">${w.name}</td>
+            <td class="address" title="${w.publicKey ?? ""}">${shortAddr}</td>
+            <td class="balance-cell">${bal}</td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn-secondary btn-small" onclick="openWalletAirdropModal('${w.name}')">Airdrop</button>
+                <button class="btn-secondary btn-small" onclick="promoteWallet('${w.name}')" ${isAgent ? 'disabled title="Already an agent"' : ""}>▲ Promote</button>
+                <button class="btn-secondary btn-small" onclick="viewWallet('${w.name}')">Details</button>
+              </div>
+            </td>
+          </tr>`;
+          })
+          .join("");
+      }
+
+      async function refreshWallets() {
+        try {
+          wallets = await api("/wallets");
+          renderWallets();
+        } catch (err) {
+          toast(err.message, "error");
+        }
+      }
+
+      async function viewWallet(name) {
+        try {
+          const [balRes, splRes] = await Promise.all([
+            api(`/wallets/${name}/balance`),
+            api(`/wallets/${name}/spl-balances`),
+          ]);
+
+          document.getElementById("walletDetailTitle").textContent =
+            `Wallet: ${name}`;
+
+          const grid = document.getElementById("walletDetailGrid");
+          grid.innerHTML = `
+            <div class="detail-field"><label>Name</label><span>${name}</span></div>
+            <div class="detail-field"><label>Address</label><span style="font-size:12px">${wallets.find((w) => w.name === name)?.publicKey ?? "-"}</span></div>
+            <div class="detail-field"><label>SOL Balance</label><span style="color:var(--accent)">${balRes.balanceSol?.toFixed(6) ?? "-"} SOL</span></div>
+          `;
+
+          const splDiv = document.getElementById("walletDetailSpl");
+          if (splRes.spl && splRes.spl.length > 0) {
+            splDiv.innerHTML = `
+              <h4 style="font-size:14px;margin-bottom:8px">SPL Token Balances</h4>
+              <table class="spl-table">
+                <thead><tr><th>Mint</th><th>Amount</th><th>Decimals</th></tr></thead>
+                <tbody>${splRes.spl
+                  .map(
+                    (b) => `
+                  <tr>
+                    <td style="font-size:11px">${b.mint.slice(0, 8)}…${b.mint.slice(-4)}</td>
+                    <td>${b.amount}</td>
+                    <td>${b.decimals}</td>
+                  </tr>`,
+                  )
+                  .join("")}
+                </tbody>
+              </table>`;
+          } else {
+            splDiv.innerHTML = `<p style="font-size:13px;color:var(--text-dim)">No SPL tokens held</p>`;
+          }
+
+          document.getElementById("walletDetailPanel").classList.add("open");
+        } catch (err) {
+          toast(err.message, "error");
+        }
+      }
+
+      function closeWalletDetail() {
+        document.getElementById("walletDetailPanel").classList.remove("open");
+      }
+
+      // ── Promote Wallet to Agent ──────────────────────────────
+      async function promoteWallet(name) {
+        try {
+          const record = await api("/agents/promote", {
+            method: "POST",
+            body: JSON.stringify({ walletName: name, strategy: "simple" }),
+          });
+          toast(`Wallet "${name}" promoted to agent ${record.id.slice(0, 8)}…`);
+          await refreshAgents();
+          await refreshWallets();
+        } catch (err) {
+          toast(err.message, "error");
+        }
+      }
+
+      // ── Create Wallet ───────────────────────────────────────
+      function openCreateWalletModal() {
+        document.getElementById("createWalletModal").classList.add("open");
+      }
+      function closeCreateWalletModal() {
+        document.getElementById("createWalletModal").classList.remove("open");
+      }
+      async function createWallet() {
+        const btn = document.getElementById("createWalletBtn");
+        btn.disabled = true;
+        btn.textContent = "Creating...";
+        try {
+          const name = document.getElementById("createWalletName").value.trim();
+          if (!name) {
+            toast("Wallet name is required", "error");
+            return;
+          }
+          const res = await api("/wallets/create", {
+            method: "POST",
+            body: JSON.stringify({ name }),
+          });
+          toast(`Wallet "${name}" created: ${res.publicKey.slice(0, 8)}…`);
+          closeCreateWalletModal();
+          document.getElementById("createWalletName").value = "";
+          await refreshWallets();
+        } catch (err) {
+          toast(err.message, "error");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Create";
+        }
+      }
+
+      // ── Wallet Airdrop ──────────────────────────────────────
+      let airdropWalletName = null;
+      function openWalletAirdropModal(name) {
+        airdropWalletName = name;
+        const w = wallets.find((w) => w.name === name);
+        document.getElementById("walletAirdropInfo").textContent =
+          `Airdrop devnet SOL to wallet "${name}" (${w?.publicKey?.slice(0, 8) ?? ""}…)`;
+        document.getElementById("walletAirdropModal").classList.add("open");
+      }
+      function closeWalletAirdropModal() {
+        document.getElementById("walletAirdropModal").classList.remove("open");
+        airdropWalletName = null;
+      }
+      async function walletAirdrop() {
+        if (!airdropWalletName) return;
+        const btn = document.getElementById("walletAirdropBtn");
+        btn.disabled = true;
+        btn.textContent = "Airdropping...";
+        try {
+          const sol =
+            parseFloat(document.getElementById("walletAirdropAmount").value) ||
+            1;
+          await api(`/wallets/${airdropWalletName}/airdrop`, {
+            method: "POST",
+            body: JSON.stringify({ sol }),
+          });
+          toast(`Airdropped ${sol} SOL to "${airdropWalletName}"`);
+          closeWalletAirdropModal();
+          await refreshWallets();
+        } catch (err) {
+          toast(err.message, "error");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Airdrop";
+        }
+      }
+
+      // ── Run Agent (Simple) ──────────────────────────────────
+      let runAgentId = null;
+      function openRunAgentModal(id) {
+        runAgentId = id;
+        document.getElementById("runAgentInfo").textContent =
+          `Run simple transfer loop for agent ${id.slice(0, 8)}…`;
+        document.getElementById("runAgentModal").classList.add("open");
+      }
+      function closeRunAgentModal() {
+        document.getElementById("runAgentModal").classList.remove("open");
+        runAgentId = null;
+      }
+      async function runAgent() {
+        if (!runAgentId) return;
+        const btn = document.getElementById("runAgentBtn");
+        btn.disabled = true;
+        btn.textContent = "Running...";
+        try {
+          const to = document.getElementById("runTo").value.trim() || undefined;
+          const sol =
+            parseFloat(document.getElementById("runSol").value) || 0.01;
+          const iterations =
+            parseInt(document.getElementById("runIterations").value) || 5;
+          const interval =
+            parseInt(document.getElementById("runInterval").value) || 3000;
+          const hold =
+            parseFloat(document.getElementById("runHold").value) ?? 0.6;
+          const res = await api(`/agents/${runAgentId}/run`, {
+            method: "POST",
+            body: JSON.stringify({ to, sol, iterations, interval, hold }),
+          });
+          toast(`Agent completed: ${res.signatures.length} transaction(s)`);
+          closeRunAgentModal();
+          await refreshAgents();
+        } catch (err) {
+          toast(err.message, "error");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Run";
+        }
+      }
+
+      // ── Trade Agent ─────────────────────────────────────────
+      let tradeAgentId = null;
+      function openTradeAgentModal(id) {
+        tradeAgentId = id;
+        document.getElementById("tradeAgentInfo").textContent =
+          `Run price-based trading for agent ${id.slice(0, 8)}…`;
+        document.getElementById("tradeAgentModal").classList.add("open");
+      }
+      function closeTradeAgentModal() {
+        document.getElementById("tradeAgentModal").classList.remove("open");
+        tradeAgentId = null;
+      }
+      async function tradeAgent() {
+        if (!tradeAgentId) return;
+        const btn = document.getElementById("tradeAgentBtn");
+        btn.disabled = true;
+        btn.textContent = "Running...";
+        try {
+          const mint = document.getElementById("tradeMint").value.trim();
+          if (!mint) {
+            toast("Mint address is required", "error");
+            return;
+          }
+          const buy =
+            parseFloat(document.getElementById("tradeBuy").value) || 0.95;
+          const sell =
+            parseFloat(document.getElementById("tradeSell").value) || 1.05;
+          const amount =
+            parseFloat(document.getElementById("tradeAmount").value) || 1;
+          const iterations =
+            parseInt(document.getElementById("tradeIterations").value) || 5;
+          const interval =
+            parseInt(document.getElementById("tradeInterval").value) || 3000;
+          const res = await api(`/agents/${tradeAgentId}/trade`, {
+            method: "POST",
+            body: JSON.stringify({
+              mint,
+              buy,
+              sell,
+              amount,
+              iterations,
+              interval,
+            }),
+          });
+          toast(`Trading completed: ${res.signatures.length} trade(s)`);
+          closeTradeAgentModal();
+          await refreshAgents();
+        } catch (err) {
+          toast(err.message, "error");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Run Trading";
+        }
+      }
+
+      // ── Liquidity Agent ─────────────────────────────────────
+      let liquidityAgentId = null;
+      function openLiquidityAgentModal(id) {
+        liquidityAgentId = id;
+        document.getElementById("liquidityAgentInfo").textContent =
+          `Run liquidity rebalancing for agent ${id.slice(0, 8)}…`;
+        document.getElementById("liquidityAgentModal").classList.add("open");
+      }
+      function closeLiquidityAgentModal() {
+        document.getElementById("liquidityAgentModal").classList.remove("open");
+        liquidityAgentId = null;
+      }
+      async function liquidityAgent() {
+        if (!liquidityAgentId) return;
+        const btn = document.getElementById("liquidityAgentBtn");
+        btn.disabled = true;
+        btn.textContent = "Running...";
+        try {
+          const mint = document.getElementById("liquidityMint").value.trim();
+          if (!mint) {
+            toast("Mint address is required", "error");
+            return;
+          }
+          const min =
+            parseFloat(document.getElementById("liquidityMin").value) || 10;
+          const max =
+            parseFloat(document.getElementById("liquidityMax").value) || 100;
+          const amount =
+            parseFloat(document.getElementById("liquidityAmount").value) || 5;
+          const iterations =
+            parseInt(document.getElementById("liquidityIterations").value) || 5;
+          const interval =
+            parseInt(document.getElementById("liquidityInterval").value) ||
+            3000;
+          const res = await api(`/agents/${liquidityAgentId}/liquidity`, {
+            method: "POST",
+            body: JSON.stringify({
+              mint,
+              min,
+              max,
+              amount,
+              iterations,
+              interval,
+            }),
+          });
+          toast(`Liquidity completed: ${res.signatures.length} rebalance(s)`);
+          closeLiquidityAgentModal();
+          await refreshAgents();
+        } catch (err) {
+          toast(err.message, "error");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Run Liquidity";
+        }
+      }
+
+      // ── Create Mint ─────────────────────────────────────────
+      function populateWalletSelects() {
+        const options = wallets
+          .map((w) => `<option value="${w.name}">${w.name}</option>`)
+          .join("");
+        [
+          "mintWalletSelect",
+          "mintTokensWalletSelect",
+          "transferFromSelect",
+        ].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el)
+            el.innerHTML = options || '<option value="">No wallets</option>';
+        });
+      }
+      function openCreateMintModal() {
+        populateWalletSelects();
+        document.getElementById("createMintModal").classList.add("open");
+      }
+      function closeCreateMintModal() {
+        document.getElementById("createMintModal").classList.remove("open");
+      }
+      async function createMint() {
+        const btn = document.getElementById("createMintBtn");
+        btn.disabled = true;
+        btn.textContent = "Creating...";
+        try {
+          const walletName = document.getElementById("mintWalletSelect").value;
+          const decimals =
+            parseInt(document.getElementById("mintDecimals").value) || 6;
+          if (!walletName) {
+            toast("Select a wallet", "error");
+            return;
+          }
+          const res = await api("/tokens/create-mint", {
+            method: "POST",
+            body: JSON.stringify({ walletName, decimals }),
+          });
+          toast(`Mint created: ${res.mint.slice(0, 12)}…`);
+          closeCreateMintModal();
+        } catch (err) {
+          toast(err.message, "error");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Create Mint";
+        }
+      }
+
+      // ── Mint Tokens ─────────────────────────────────────────
+      function openMintTokensModal() {
+        populateWalletSelects();
+        document.getElementById("mintTokensModal").classList.add("open");
+      }
+      function closeMintTokensModal() {
+        document.getElementById("mintTokensModal").classList.remove("open");
+      }
+      async function mintTokens() {
+        const btn = document.getElementById("mintTokensBtn");
+        btn.disabled = true;
+        btn.textContent = "Minting...";
+        try {
+          const walletName = document.getElementById(
+            "mintTokensWalletSelect",
+          ).value;
+          const mint = document.getElementById("mintTokensMint").value.trim();
+          const amount =
+            parseFloat(document.getElementById("mintTokensAmount").value) || 10;
+          const decimals =
+            parseInt(document.getElementById("mintTokensDecimals").value) || 6;
+          if (!walletName || !mint) {
+            toast("Wallet and mint are required", "error");
+            return;
+          }
+          await api("/tokens/mint", {
+            method: "POST",
+            body: JSON.stringify({ walletName, mint, amount, decimals }),
+          });
+          toast(`Minted ${amount} tokens`);
+          closeMintTokensModal();
+          await refreshWallets();
+        } catch (err) {
+          toast(err.message, "error");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Mint";
+        }
+      }
+
+      // ── Transfer Tokens ─────────────────────────────────────
+      function openTransferTokensModal() {
+        populateWalletSelects();
+        document.getElementById("transferTokensModal").classList.add("open");
+      }
+      function closeTransferTokensModal() {
+        document.getElementById("transferTokensModal").classList.remove("open");
+      }
+      async function transferTokens() {
+        const btn = document.getElementById("transferTokensBtn");
+        btn.disabled = true;
+        btn.textContent = "Transferring...";
+        try {
+          const fromWallet =
+            document.getElementById("transferFromSelect").value;
+          const to = document.getElementById("transferTo").value.trim();
+          const mint = document.getElementById("transferMint").value.trim();
+          const amount =
+            parseFloat(document.getElementById("transferAmount").value) || 1;
+          const decimals =
+            parseInt(document.getElementById("transferDecimals").value) || 6;
+          if (!fromWallet || !to || !mint) {
+            toast("All fields are required", "error");
+            return;
+          }
+          await api("/tokens/transfer", {
+            method: "POST",
+            body: JSON.stringify({ fromWallet, to, mint, amount, decimals }),
+          });
+          toast(`Transferred ${amount} tokens`);
+          closeTransferTokensModal();
+          await refreshWallets();
+        } catch (err) {
+          toast(err.message, "error");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Transfer";
+        }
+      }
+
+      // ── Init ────────────────────────────────────────────────
+      (async () => {
+        await checkHealth();
+        await refreshAgents();
+        await refreshWallets();
+        // Auto-refresh every 15 seconds
+        setInterval(async () => {
+          await checkHealth();
+          await refreshAgents();
+          await refreshWallets();
+        }, 15000);
+      })();
+    </script>
+  </body>
+</html>
